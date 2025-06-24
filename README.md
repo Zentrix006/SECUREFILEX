@@ -29,11 +29,7 @@ A powerful **AES-256** file encryption and decryption tool designed for both **C
 ### 🔧 Requirements
 
 - Python 3.8+
-- `pycryptodome`
 
-```bash
-pip install pycryptodome
-```
 ```CLI
 python securefilex_cli.py encrypt <input_file> <output_file>
 python securefilex_cli.py decrypt <input_file> <output_file>
