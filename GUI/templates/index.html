@@ -1,0 +1,172 @@
+<!-- ===== templates/index.html ===== -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureFileX - File Encryption Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <canvas id="matrixCanvas" class="fixed top-0 left-0 w-full h-full -z-10 opacity-20"></canvas>
+    <div class="bg-white rounded-xl shadow-xl p-6 w-full max-w-2xl">
+        <div class="text-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">SecureFileX</h1>
+            <p class="text-gray-600">Secure your files with AES-256 encryption</p>
+        </div>
+
+        <div class="flex justify-center space-x-4 mb-6">
+            <button onclick="setMode('encrypt')" class="px-6 py-3 bg-blue-600 text-white rounded-lg">Encrypt</button>
+            <button onclick="setMode('decrypt')" class="px-6 py-3 bg-green-600 text-white rounded-lg">Decrypt</button>
+        </div>
+
+        <form>
+            <div id="fileDrop" class="drop-zone p-8 text-center cursor-pointer mb-6" onclick="document.getElementById('fileInput').click()">
+                <p class="text-gray-700">Drag & Drop or Click to Select File</p>
+                <p id="fileNameDisplay" class="text-sm text-gray-500 mt-1"></p>
+                <input type="file" name="file" id="fileInput" class="hidden" />
+            </div>
+
+            <div id="estimationBox" class="mb-4 hidden">
+                <p class="text-sm text-gray-600">Estimated Time: <span id="estTime">--</span> sec</p>
+            </div>
+
+            <div id="progressContainer" class="mb-4 hidden">
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div id="progressBar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+                </div>
+                <p class="text-sm text-gray-600 mt-1" id="progressText">0%</p>
+            </div>
+
+            <div class="mb-4">
+                <input type="password" name="password" id="password" placeholder="Enter Password" class="w-full px-4 py-2 border rounded mb-2">
+                <input type="password" id="confirmPassword" placeholder="Confirm Password" class="w-full px-4 py-2 border rounded">
+            </div>
+
+            <input type="hidden" name="mode" id="modeInput">
+            <button type="submit" class="w-full py-3 bg-blue-600 text-white rounded-lg">Process</button>
+        </form>
+
+        <div id="result" class="mt-4 hidden">
+            <p class="text-green-600 font-medium">Success! File ready to download.</p>
+            <a id="downloadLink" class="text-blue-500 underline">Download File</a>
+        </div>
+
+        <footer class="mt-8 text-center text-sm text-gray-500">
+            <p>Made with 💻 by <span class="text-blue-600 font-semibold">Zentrix</span></p>
+        </footer>
+    </div>
+
+    <script>
+        let mode = '';
+        const fileInput = document.querySelector('input[name="file"]');
+        const estBox = document.getElementById('estimationBox');
+        const estTime = document.getElementById('estTime');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        const modeInput = document.getElementById('modeInput');
+        const fileDrop = document.getElementById('fileDrop');
+        const fileNameDisplay = document.getElementById('fileNameDisplay');
+
+        function setMode(m) {
+            mode = m;
+            modeInput.value = m;
+            document.getElementById('result').classList.add('hidden');
+            fileDrop.classList.remove('encrypt', 'decrypt');
+            fileDrop.classList.add(m);
+        }
+
+        fileInput.addEventListener('change', () => {
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            fileNameDisplay.textContent = file.name;
+            const formData = new FormData();
+            formData.append('size', file.size);
+
+            fetch('/estimate', { method: 'POST', body: formData })
+                .then(res => res.json())
+                .then(data => {
+                    estTime.textContent = data.estimated_time + ' sec';
+                    estBox.classList.remove('hidden');
+                });
+        });
+
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const xhr = new XMLHttpRequest();
+            const formData = new FormData(form);
+            const file = fileInput.files[0];
+            const password = document.getElementById('password').value;
+            const confirm = document.getElementById('confirmPassword').value;
+
+            if (!file || !mode) return alert("Please select a file and mode");
+            if (!password) return alert("Password is required");
+            if (mode === 'encrypt' && password !== confirm) return alert("Passwords do not match");
+
+            progressContainer.classList.remove('hidden');
+            xhr.open('POST', '/process', true);
+
+            xhr.upload.onprogress = function (e) {
+                if (e.lengthComputable) {
+                    const percent = (e.loaded / e.total) * 100;
+                    progressBar.style.width = percent + '%';
+                    progressText.textContent = Math.floor(percent) + '%';
+                }
+            };
+
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    const blob = new Blob([xhr.response]);
+                    const link = document.getElementById('downloadLink');
+                    link.href = window.URL.createObjectURL(blob);
+                    link.download = file.name + (mode === 'encrypt' ? '.afx' : '');
+                    link.click();
+                    progressBar.style.width = '100%';
+                    progressText.textContent = 'Done!';
+                } else {
+                    alert("Error: " + xhr.statusText);
+                }
+            };
+
+            xhr.responseType = 'blob';
+            xhr.send(formData);
+        });
+
+        // Matrix background effect
+        const canvas = document.getElementById('matrixCanvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const letters = "01";
+        const fontSize = 16;
+        const columns = canvas.width / fontSize;
+        const drops = Array.from({ length: columns }).fill(1);
+
+        function draw() {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#0f0";
+            ctx.font = fontSize + "px monospace";
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = letters[Math.floor(Math.random() * letters.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+
+        setInterval(draw, 33);
+    </script>
+</body>
+</html>
