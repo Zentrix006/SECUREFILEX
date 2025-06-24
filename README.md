@@ -81,3 +81,32 @@ This project is licensed under the MIT License.
 # 🙌 Acknowledgements
 Made with ❤️ on Kali Linux
 Inspired by privacy tools and real-world need for secure data handling.
+
+## 📘 About This Project
+
+**SecureFileX** is a personal cybersecurity project developed as part of my learning journey. It simulates a secure file encryption toolset — designed for ethical hacking, testing, and educational purposes.
+
+### 🛠️ Core Functionalities
+
+- 🧑‍💻 AES-256 encryption and decryption via CLI and Web GUI
+- 🌐 Built using Python, Flask, Tailwind CSS / Bootstrap
+
+---
+
+## 🙋‍♂️ Developed By
+
+**Arnoldo Felix R**  
+Aspiring Cybersecurity Analyst | CTF Player | Python & Linux Enthusiast  
+🎓 Computer Science Student, GITAM University  
+📍 Based in India 🇮🇳  
+
+---
+
+## 📬 Contact Me
+
+- 📧 Email: [arnoldofelix146@gmail.com](mailto:arnoldofelix146@gmail.com)
+- 💼 LinkedIn: [Arnoldo Felix R](https://www.linkedin.com/in/arnoldo-felix-r-30123b313)
+- 🐙 GitHub: [Zentrix006](https://github.com/Zentrix006)
+
+---
+
