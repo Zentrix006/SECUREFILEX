@@ -26,6 +26,9 @@ A powerful **AES-256** file encryption and decryption tool designed for both **C
 
 ## 🖥️ CLI Version
 
+![Screenshot 2025-06-23 205440](https://github.com/user-attachments/assets/5bb32c74-dba6-462b-a06a-b18018126fea)
+
+
 ### 🔧 Requirements
 
 - Python 3.8+
@@ -37,6 +40,11 @@ python securefilex_cli.py decrypt <input_file> <output_file>
 You will be prompted to enter a password for encryption/decryption.
 
 # 🌐 GUI Version (Web App)
+
+![Screenshot 2025-06-24 194130](https://github.com/user-attachments/assets/877791bc-be15-47d2-ba0c-290d7b8e827e)
+![Screenshot 2025-06-24 194154](https://github.com/user-attachments/assets/7bfedf86-79f3-4982-b8f9-5aa358f2ccb0)
+![Screenshot 2025-06-24 194208](https://github.com/user-attachments/assets/4102e1a1-cbf6-4516-be99-6c0d73bc04c8)
+
 
 ⚙️ Setup
 Clone the repository:
